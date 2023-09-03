@@ -6,7 +6,7 @@ namespace VDice
 {
     class Static
     {
-        public static double relativeDistance(double[] x, double[] y)
+       public static double relativeDistance(double[] x, double[] y)
         {
             if (x.Length != y.Length)
             {
@@ -14,20 +14,19 @@ namespace VDice
                 Environment.Exit(0);
             }
             double dist = 0.0;
-            for (int i = 0; i < x.Length; ++i)
-            {
-                dist += (x[i] - y[i]) * (x[i] - y[i]);
-            }
             double norm1 = 0.0;
             double norm2 = 0.0;
             for (int i = 0; i < x.Length; ++i)
             {
+                dist += (x[i] - y[i]) * (x[i] - y[i]);
                 norm1 += x[i] * x[i];
                 norm2 += y[i] * y[i];
             }
-            double max_norm = norm1;
-            if (norm2 > max_norm) max_norm = norm2;
-            return Math.Sqrt(dist / max_norm);
+            dist = Math.Sqrt(dist);
+            norm1 = Math.Sqrt(norm1);
+            norm2 = Math.Sqrt(norm2);
+            double norm = (norm1 + norm2) / 2.0;
+            return dist / norm;
         }
 
         public static double[] GetKNNSample(List<double[]> inputs, List<double> targets, double[] x, double var)
