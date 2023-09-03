@@ -84,7 +84,7 @@ namespace VDice
                 //double predictedVar = km_variance.ComputeOutput(randomInput);
                 //double[] knn = Static.GetKNNSample(dh._inputs, dh._target, randomInput, predictedVar);
                 double[] monte_carlo = dh.GetMonteCarloSample(randomInput, 2048);
-                double[] ddr = slider.GetOutput(randomInput, 0.1, 8);
+                double[] ddr = slider.GetOutput(randomInput, 0.1, 10);
 
                 List<double> monte_carlo_medians = Static.MedianSplit(monte_carlo, 5);
                 List<double> ddr_medians = Static.MedianSplit(ddr, 5);               
