@@ -108,5 +108,5 @@ namespace VDice
     }
 }
 
-//Results for the test conducted on 08.27.2023
-//0.1326  0.1170  0.1338  0.1212  0.1342  0.1303  0.1142  0.1147
+//Results for the test conducted on 09.03.2023
+//0.1323  0.1335  0.1294  0.1365  0.1397  0.1316  0.1430  0.1271
