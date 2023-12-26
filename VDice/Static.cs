@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -303,6 +303,114 @@ namespace VDice
 
             MedianSplit(left, depth - 1, list);
             MedianSplit(right, depth - 1, list);
+        }
+
+        static List<double> SortedDistinct(List<double> x)
+        {
+            HashSet<double> set = new HashSet<double>();
+            foreach (double d in x)
+            {
+                set.Add(d);
+            }
+            List<double> distinct = new List<double>();
+            foreach (double d in set)
+            {
+                distinct.Add(d);
+            }
+            distinct.Sort();
+            return distinct;
+        }
+
+        private static List<double> GetP(List<double> distinctSorted, List<double> data)
+        {
+            data.Sort();
+            List<double> p = new List<double>();
+            int distinctReference = 0;
+            int currentCounter = 0;
+            for (int i = 0; i < data.Count; ++i)
+            {
+                if (data[i] <= distinctSorted[distinctReference])
+                {
+                    ++currentCounter;
+                }
+                else
+                {
+                    p.Add(currentCounter);
+                    currentCounter = 1;
+                    ++distinctReference;
+                }
+            }
+            if (0 != currentCounter)
+            {
+                p.Add(currentCounter);
+            }
+            for (int i = 1; i < p.Count; ++i)
+            {
+                p[i] += p[i - 1];
+            }
+            for (int i = 0; i < p.Count; ++i)
+            {
+                p[i] /= p[p.Count - 1];
+            }
+            return p;
+        }
+
+        private static List<double> GetProjected(List<double> distinctSorted, List<double> P, List<double> allDistinctSorted)
+        {
+            List<double> pCumulative = new List<double>();
+            for (int i = 0; i < allDistinctSorted.Count; ++i)
+            {
+                bool isAdded = false;
+                int startingIndex = 0;
+                for (int k = startingIndex; k < distinctSorted.Count; ++k)
+                {
+                    if (distinctSorted[k] > allDistinctSorted[i])
+                    {
+                        if (k - 1 < 0)
+                        {
+                            pCumulative.Add(0.0);
+                            isAdded = true;
+                        }
+                        else
+                        {
+                            pCumulative.Add(P[k - 1]);
+                            isAdded = true;
+                        }
+                        startingIndex = k;
+                        break;
+                    }
+                }
+                if (!isAdded)
+                {
+                    pCumulative.Add(1.0);
+                }
+            }
+            return pCumulative;
+        }
+
+        public static double CVM(List<double> x, List<double> y)
+        {
+            List<double> distinctSortedX = SortedDistinct(x);
+            List<double> distinctSortedY = SortedDistinct(y);
+
+            var all = new List<double>(x.Count + y.Count);
+            all.AddRange(x);
+            all.AddRange(y);
+
+            List<double> allDistinctSorted = SortedDistinct(all);
+            List<double> pX = GetP(distinctSortedX, x);
+            List<double> pY = GetP(distinctSortedY, y);
+
+            List<double> pCumulativeX = GetProjected(distinctSortedX, pX, allDistinctSorted);
+            List<double> pCumulativeY = GetProjected(distinctSortedY, pY, allDistinctSorted);
+
+            double csv = 0.0;
+            for (int i = 0; i < pCumulativeX.Count; ++i)
+            {
+                csv += Math.Abs(pCumulativeX[i] - pCumulativeY[i]);
+            }
+
+            return csv / pCumulativeX.Count;
         }
     }
 }
