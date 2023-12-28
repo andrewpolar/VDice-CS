@@ -404,13 +404,23 @@ namespace VDice
             List<double> pCumulativeX = GetProjected(distinctSortedX, pX, allDistinctSorted);
             List<double> pCumulativeY = GetProjected(distinctSortedY, pY, allDistinctSorted);
 
-            double csv = 0.0;
-            for (int i = 0; i < pCumulativeX.Count; ++i)
-            {
-                csv += Math.Abs(pCumulativeX[i] - pCumulativeY[i]);
-            }
+            //double csv = 0.0;
+            //for (int i = 0; i < pCumulativeX.Count; ++i)
+            //{
+            //    csv += Math.Abs(pCumulativeX[i] - pCumulativeY[i]);
+            //}
 
-            return csv / pCumulativeX.Count;
+            //return csv / pCumulativeX.Count;
+
+            double csv = 0.0;
+            double totalDelta = 0.0;
+            for (int i = 0; i < pCumulativeX.Count - 1; ++i)
+            {
+                double delta = allDistinctSorted[i + 1] - allDistinctSorted[i];
+                csv += Math.Abs(pCumulativeX[i] - pCumulativeY[i]) * delta;
+                totalDelta += delta;
+            }
+            return csv / totalDelta;
         }
     }
 }
