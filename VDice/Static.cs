@@ -422,5 +422,96 @@ namespace VDice
             }
             return csv / totalDelta;
         }
+
+        public static double CVM_T(List<double> x, List<double> y)
+        {
+            List<double> all = new List<double>();
+            List<double> labels = new List<double>();
+            foreach (double d in x)
+            {
+                all.Add(d);
+                labels.Add(-1.0);
+            }
+            foreach (double d in y)
+            {
+                all.Add(d);
+                labels.Add(1.0);
+            }
+            int[] indexes = new int[all.Count];
+            for (int i = 0; i < all.Count; ++i)
+            {
+                indexes[i] = i;
+            }
+            Array.Sort(all.ToArray(), indexes);
+
+            double UX = 0.0;
+            double UY = 0.0;
+            int cntx = 0;
+            int cnty = 0;
+            for (int i = 0; i < all.Count; ++i)
+            {
+                if (labels[indexes[i]] < 0)
+                {
+                    UX += (i - cntx) * (i - cntx);
+                    ++cntx;
+                }
+                else
+                {
+                    UY += (i - cnty) * (i - cnty);
+                    ++cnty;
+                }
+            }
+            double N = x.Count;
+            double M = y.Count;
+            double U = UX * N + UY * M;
+            double T = U / (N * M * (N + M)) - (4.0 * N * M - 1.0) / (6.0 * (M + N));
+            return T;
+        }
+
+        private static List<double> GetpValues(List<double> data, int subSampleSize)
+        {
+            if (subSampleSize * 2 > data.Count)
+            {
+                System.Console.WriteLine("pValues can be estimated for subsamples smaller than {0}", data.Count / 2);
+                Environment.Exit(0);
+            }
+
+            List<double> result = new List<double>();
+            List<double> sample = new List<double>();
+            Random random = new Random();
+            for (int K = 0; K < 100; ++K)
+            {
+                sample.Clear();
+                List<double> Data = new List<double>(data);
+                int N = subSampleSize;
+                int limit = N;
+                for (int i = 0; i < N; ++i)
+                {
+                    int pos = random.Next(limit);
+                    sample.Add(Data[pos]);
+                    Data.Remove(pos);
+                }
+                double cvm = CVM_T(sample, new List<double>(data));
+                result.Add(cvm);
+            }
+            return result;
+        }
+
+        public static double GetProb(List<double> data, List<double> sample)
+        {
+            List<double> pValues = GetpValues(new List<double>(data), sample.Count);
+            pValues.Sort();
+            double cvm = CVM_T(data, sample);
+            int counter = 0;
+            for (int i = pValues.Count - 1; i >= 0; --i)
+            {
+                if (cvm > pValues[i])
+                {
+                    break;
+                }
+                ++counter;
+            }
+            return counter / 100.0;
+        }
     }
 }
