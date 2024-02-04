@@ -59,33 +59,31 @@ namespace VDice
             int NTests = 100;
             double mean_dist = 0.0;
             int passed_CVMs = 0;
-            List<double> meanModel = new List<double>();
-            List<double> meanMC = new List<double>();
-            List<double> stdModel = new List<double>();
-            List<double> stdMC = new List<double>();
-            List<double> expectationModel = new List<double>();
-            List<double> stdDirectModel = new List<double>();
+            List<double> meanDDRlist = new List<double>();
+            List<double> meanMClist = new List<double>();
+            List<double> stdModellist = new List<double>();
+            List<double> stdMClist = new List<double>();
+ 
             for (int i = 0; i < NTests; ++i)
             {
                 double[] randomInput = dh.MakeRandomInput();
-                double[] monte_carlo = dh.GetMonteCarloSample(randomInput, 4096);
-                double[] ddrMT = slider.GetOutput(randomInput, 0.2, 10);
-                double[] ddrCVM = slider.GetOutput(randomInput, 0.0, 1);
+                double[] monte_carlo_sample = dh.GetMonteCarloSample(randomInput, 4096);
+                double[] DDR_sample = slider.GetOutput(randomInput, 0.0, 1);
 
-                double meanDDR = Static.GetMean(ddrCVM);
-                double meanMonteCarlo = Static.GetMean(monte_carlo);
-                double stdDDR = Static.GetSTD(ddrCVM, meanDDR);
-                double stdMonteCarlo = Static.GetSTD(ddrMT, meanMonteCarlo);
-                meanModel.Add(meanDDR);
-                meanMC.Add(meanMonteCarlo);
-                stdModel.Add(stdDDR);
-                stdMC.Add(stdMonteCarlo);
+                double meanDDR = Static.GetMean(DDR_sample);
+                double meanMonteCarlo = Static.GetMean(monte_carlo_sample);
+                double stdDDR = Static.GetSTD(DDR_sample, meanDDR);
+                double stdMonteCarlo = Static.GetSTD(monte_carlo_sample, meanMonteCarlo);
+                meanDDRlist.Add(meanDDR);
+                meanMClist.Add(meanMonteCarlo);
+                stdModellist.Add(stdDDR);
+                stdMClist.Add(stdMonteCarlo);
  
-                List<double> monte_carlo_medians = Static.MedianSplit(monte_carlo, 5);
-                List<double> ddr_medians = Static.MedianSplit(ddrMT, 5);
+                List<double> monte_carlo_medians = Static.MedianSplit(monte_carlo_sample, 5);
+                List<double> ddr_medians = Static.MedianSplit(DDR_sample, 5);
                 mean_dist += Static.relativeDistance(monte_carlo_medians.ToArray(), ddr_medians.ToArray());
 
-                double p = Static.GetProb(new List<double>(monte_carlo), new List<double>(ddrCVM));
+                double p = Static.GetProb(new List<double>(monte_carlo_sample), new List<double>(DDR_sample));
                 if (p > 0.05)
                 {
                     ++passed_CVMs;
@@ -97,8 +95,8 @@ namespace VDice
             mean_dist /= NTests;
             Console.WriteLine("Accuracy metric: mean median tree {0:0.0000}", mean_dist);
             Console.WriteLine("Passed Cramer von Mises DDR tests {0} from {1} tests", passed_CVMs, NTests);
-            Console.WriteLine("Relative distance for means DDR - mean Monte Carlo {0:0.0000}", Static.relativeDistance(meanMC.ToArray(), meanModel.ToArray()));
-            Console.WriteLine("Relative distance for STD   DDR - STD  Monte Carlo {0:0.0000}", Static.relativeDistance(stdMC.ToArray(), stdModel.ToArray()));
+            Console.WriteLine("Relative distance for means DDR - mean Monte Carlo {0:0.0000}", Static.relativeDistance(meanMClist.ToArray(), meanDDRlist.ToArray()));
+            Console.WriteLine("Relative distance for STD   DDR - STD  Monte Carlo {0:0.0000}", Static.relativeDistance(stdMClist.ToArray(), stdModellist.ToArray()));
         }
     }
 }
