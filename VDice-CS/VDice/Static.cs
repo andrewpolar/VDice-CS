@@ -153,7 +153,7 @@ namespace VDice
             MedianSplit(right, depth - 1, list);
         }
 
-        public static double CVM_T(List<double> x, List<double> y)
+        public static double CVM_Statistic(List<double> x, List<double> y)
         {
             List<double> all = new List<double>();
             List<double> labels = new List<double>();
@@ -212,16 +212,12 @@ namespace VDice
             for (int K = 0; K < 100; ++K)
             {
                 sample.Clear();
-                List<double> Data = new List<double>(data);
-                int N = subSampleSize;
-                int limit = N;
-                for (int i = 0; i < N; ++i)
+                for (int i = 0; i < subSampleSize; ++i)
                 {
-                    int pos = random.Next(limit);
-                    sample.Add(Data[pos]);
-                    Data.Remove(pos);
+                    int pos = random.Next(data.Count);
+                    sample.Add(data[pos]);
                 }
-                double cvm = CVM_T(sample, new List<double>(data));
+                double cvm = CVM_Statistic(sample, data);
                 result.Add(cvm);
             }
             return result;
@@ -231,7 +227,7 @@ namespace VDice
         {
             List<double> pValues = GetpValues(new List<double>(data), sample.Count);
             pValues.Sort();
-            double cvm = CVM_T(data, sample);
+            double cvm = CVM_Statistic(data, sample);
             int counter = 0;
             for (int i = pValues.Count - 1; i >= 0; --i)
             {
