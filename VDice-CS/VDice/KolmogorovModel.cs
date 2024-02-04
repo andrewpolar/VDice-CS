@@ -10,9 +10,9 @@ namespace VDice
         //Mmodel parameters 
         int points_in_interior = 3;
         int points_in_exterior = 8;
-        double muRoot = 0.01;
+        double muRoot = 0.1;
         double muLeaves = 0.01;
-        int nEpochs = 500;
+        int nEpochs = 100;
         int nLeaves = -1; //negative number means it is chosen according to theory
         //////////////////////////////////////////////////////////////////////////
 
